@@ -2,16 +2,19 @@ import re, os, csv, urllib2
 import mechanize
 from BeautifulSoup import BeautifulSoup
 from login import login
+from optparse import OptionParser
 
 # initialize variables
-# TODO - use command line flags instead
+parser = OptionParser()
+parser.add_option('-t', '--term', dest='term', default='', help='format: YYYY(FA|JA|SP|SU)', metavar='TERM')
+parser.add_option('-d', '--dept', dest='dept', default='', help='course # or abbreviation', metavar='DEPT')
+
+(options, args) = parser.parse_args()
 library = []
 cached_keys = []
-term = '2013SP' # YYYY(FA|JA|SP|SU) e.g. 2014SP
-dept = 'CMS' # course number/abbrev e.g. CMS
-if dept != '':
-  for i in range(0, 4 - len(dept)):
-    dept = '+' + dept
+if options.dept != '':
+  for i in range(0, 4 - len(options.dept)):
+    options.dept = '+' + options.dept
 
 if os.path.isfile('evals.csv'):
   for r in csv.DictReader(open('evals.csv')):
@@ -33,7 +36,7 @@ br.select_form(nr=0)
 br.submit()
 
 # search all the things
-br.open('subjectEvaluationSearch.htm?termId=' + term + '&departmentId=' + dept + '&subjectCode=*&instructorName=&search=Search')
+br.open('subjectEvaluationSearch.htm?termId=' + options.term + '&departmentId=' + options.dept + '&subjectCode=*&instructorName=&search=Search')
 index_soup = BeautifulSoup(br.response().read())
 links = index_soup.findAll('a')[3:]
 
