@@ -10,7 +10,7 @@ parser.add_option('-t', '--term', dest='term', default='', help='format: YYYY(FA
 parser.add_option('-d', '--dept', dest='dept', default='', help='course # or abbreviation', metavar='DEPT')
 
 (options, args) = parser.parse_args()
-library, cached_keys, temp_cache = [], [], []
+library, cached_keys = [], []
 max_questions = 0
 if options.dept != '':
   for i in range(0, 4 - len(options.dept)):
@@ -46,7 +46,7 @@ print 'scraping...'
 for l in links:
   href = l.get('href')
   if href not in cached_keys:
-    temp_cache.append(href)
+    cached_keys.append(href)
     br.open(href)
     link_soup = BeautifulSoup(br.response().read())
 
@@ -55,7 +55,7 @@ for l in links:
     questions, avgs, responses, stddevs = [], [], [], []
 
     # scrape summary data
-    data['subject'] = link_soup.findAll('h1')[2].contents[0::2][0:-1][temp_cache.count(href) - 1].strip().split('&nbsp;')[0]
+    data['subject'] = link_soup.findAll('h1')[2].contents[0::2][0:-1][cached_keys.count(href) - 1].strip().split('&nbsp;')[0]
     data['full_name'] = link_soup.findAll('h1')[2].contents[0].strip().split('&nbsp;')[1]
     data['term'] = re.search('(Fall|IAP|Spring|Summer) [0-9]{4}', link_soup.findAll('h2')[0].contents[0]).group(0)
     print '  ' + data['subject'] + ', ' + data['term'],
