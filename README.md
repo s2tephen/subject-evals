@@ -10,4 +10,4 @@ login = {
   'password': YOUR_PASSWORD
 }
 ```
-Then, run `python scrape.py` in console.
+In `scrape.py`, narrow your scope in the variables section at the top (by default, it will scrape everything). Then, run `python scrape.py` in console.
