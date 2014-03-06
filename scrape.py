@@ -3,9 +3,16 @@ import mechanize
 from BeautifulSoup import BeautifulSoup
 from login import login
 
-# initialize variables
 # TODO - check for existing csv
+
+# initialize variables
+# TODO - use command line flags instead
 library = []
+term = '' # YYYY(FA|JA|SP|SU) e.g. 2014SP
+dept = '' # course number/abbrev e.g. CMS
+if dept != '':
+  for i in range(0, 4 - len(dept)):
+    dept = '+' + dept
 
 # setup browser
 br = mechanize.Browser()
