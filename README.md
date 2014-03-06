@@ -1,6 +1,6 @@
 # MIT Subject Evaluations scraper
 
-Simple scraper for MIT Subject Evaluations listings built with Mechanize/BeautifulSoup.
+Simple scraper for MIT Subject Evaluations listings built with Mechanize and BeautifulSoup.
 
 ## Setup
 Clone this repo and create a file named `login.py` in your local directory. It should look like this:

@@ -3,14 +3,17 @@ import mechanize
 from BeautifulSoup import BeautifulSoup
 from login import login
 
-# set basic parameters
-TARGET_URL = 'https://edu-apps.mit.edu/ose-rpt'
+# initialize variables
+# TODO - check for existing csv
+library = []
 
-# login with kerberos
+# setup browser
 br = mechanize.Browser()
 br.addheaders = [('User-agent','Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US))')]
 br.set_handle_robots(False)
-br.open(TARGET_URL)
+
+# login with kerberos
+br.open('https://edu-apps.mit.edu/ose-rpt')
 br.select_form(nr=1)
 br.form['j_username'] = login['username']
 br.form['j_password'] = login['password']
@@ -20,44 +23,53 @@ br.submit()
 
 # search all the things
 br.open('subjectEvaluationSearch.htm?termId=&departmentId=&subjectCode=*&instructorName=&search=Search')
-indexSoup = BeautifulSoup(br.response().read())
-links = indexSoup.findAll('a')[3:]
+index_soup = BeautifulSoup(br.response().read())
+links = index_soup.findAll('a')[3:]
+
+# build records
+# TODO - exclude cached links
+print 'scraping...'
 for l in links:
   br.open(l.get('href'))
-  linkSoup = BeautifulSoup(br.response().read())
-  crossListings = len(soup.findAll('h1')[2].findAll('br'))
+  link_soup = BeautifulSoup(br.response().read())
 
-# send request and soupify
-# request = urllib2.Request(TARGET_URL, None, HEADERS)
-# response = urllib2.urlopen(request)
-# soup = BeautifulSoup(response)
+  # initialize variables
+  data = {}
+  questions, avgs, responses, stddevs = [], [], [], []
 
-# structure dat data
-# print 'scraping...'
-# links = soup.findAll('td', 'title')[1::2]
-# for l in links:
-#   id_ = l.parent.nextSibling.findAll('a')[1].get('href').split('=')[1]
-#   if id_ not in ids:
-#     data = {}
-#     data['id'] = l.parent.nextSibling.findAll('a')[1].get('href').split('=')[1]
-#     data['url'] = l.a.get('href')
-#     data['title'] = l.a.text
-#     data['user'] = l.parent.nextSibling.findAll('a')[0].text
-#     data['comments'] = l.parent.nextSibling.findAll('a')[1].text.split(' ')[0]
-#     link_list.append(data)
-#   else: # only update comment count if already in db
-#     data = link_list[ids.index(id_)]
-#     data['comments'] = l.parent.nextSibling.findAll('a')[1].text.split(' ')[0]
-#   print '  ' + l.a.get('href')
-# print '...done!'
+  # scrape summary data
+  # TODO - fix encoding on summary_data
+  data['subject'] link_soup.findAll('h1')[2].contents[0].strip().split('&nbsp;')[0]
+  data['full_name'] = link_soup.findAll('h1')[2].contents[0].strip().split('&nbsp;')[1]
+  data['term'] = re.search('(Fall|January|Spring|Summer) [0-9]{4}', link_soup.findAll('h2')[0].contents[0]).group(0)
+  print '  ' + data['name'] + ', ' + data['term'],
+  summary_data = link_soup.findAll('p', 'tooltip')
+  data['eligible'] = summary_data[0].contents[1].split()
+  data['respondents'] = summary_data[1].contents[1].split()
+  data['response_rate'] = summary_data[2].contents[1].split()
+
+  # scrape subject data
+  subject_data = link_soup.findAll('table', 'indivQuestions')[0:3] # ignore extra tables, e.g. HKN data
+  for section in subject_data:
+    questions += [td.text for td in section.findAll('td', {'width': 300})]
+    avgs += [td.text for td in section.findAll('td', {'width': '35px'})]
+    responses += [td.text for td in section.findAll('td', {'width': 75})]
+    stddevs += [td.text for td in section.findAll('td', {'width': 50})]
+  for i in range(0, len(questions) - 1):
+    data['q' + str(i + 1)] = questions[i]
+    data['avg' + str(i + 1)] = avgs[i]
+    data['n' + str(i + 1)] = responses[i]
+    data['sd' + str(i + 1)] = stddevs[i]
+
+  library.append(data)
+  print ' ...ok'
+print '...done!'
 
 # output to csv
-# field_names = link_list[0].keys()
-# writer = csv.DictWriter(open('hacker_news.csv', 'wb'), fieldnames=field_names)
-# headers = dict((n, n) for n in field_names)
-# writer.writerow(headers)
-# for data in link_list:
-#   if data in ids:
-#     writer.writerow(data)
-#   else:
-#     writer.writerow(dict((k, v.encode('utf8')) for k, v in data.iteritems()))
+# TODO - encode/decode shenanigans
+field_names = library[0].keys()
+writer = csv.DictWriter(open('evals.csv', 'wb'), fieldnames=field_names)
+headers = dict((n, n) for n in field_names)
+writer.writerow(headers)
+for data in library:
+  writer.writerow(data)
