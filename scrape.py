@@ -83,7 +83,7 @@ for l in links:
 
     data['url'] = href
     library.append(data)
-    print ' ...ok'
+    print '...ok'
 print '...done!'
 
 # output to csv
