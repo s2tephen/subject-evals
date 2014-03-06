@@ -6,8 +6,8 @@ Simple scraper for MIT Subject Evaluations built with [Mechanize](http://wwwsear
 Clone this repo and create a file named `login.py` in your local directory. It should look like this:
 ```
 login = {
-  'username': YOUR_USERNAME,
-  'password': YOUR_PASSWORD
+  'username': YOUR_ATHENA_USERNAME,
+  'password': YOUR_ATHENA_PASSWORD
 }
 ```
 Then, run `python scrape.py` in console with any of the following flags:

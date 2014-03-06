@@ -26,7 +26,7 @@ br = mechanize.Browser()
 br.addheaders = [('User-agent','Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US))')]
 br.set_handle_robots(False)
 
-# login with kerberos
+# login with athena
 br.open('https://edu-apps.mit.edu/ose-rpt')
 br.select_form(nr=1)
 br.form['j_username'] = login['username']
