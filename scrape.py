@@ -38,15 +38,14 @@ for l in links:
   questions, avgs, responses, stddevs = [], [], [], []
 
   # scrape summary data
-  # TODO - fix encoding on summary_data
   data['subject'] link_soup.findAll('h1')[2].contents[0].strip().split('&nbsp;')[0]
   data['full_name'] = link_soup.findAll('h1')[2].contents[0].strip().split('&nbsp;')[1]
   data['term'] = re.search('(Fall|January|Spring|Summer) [0-9]{4}', link_soup.findAll('h2')[0].contents[0]).group(0)
   print '  ' + data['name'] + ', ' + data['term'],
   summary_data = link_soup.findAll('p', 'tooltip')
-  data['eligible'] = summary_data[0].contents[1].split()
-  data['respondents'] = summary_data[1].contents[1].split()
-  data['response_rate'] = summary_data[2].contents[1].split()
+  data['eligible'] = str(summary_data[0].contents[1]).split()
+  data['respondents'] = str(summary_data[1].contents[1]).split()
+  data['response_rate'] = str(summary_data[2].contents[1]).split()
 
   # scrape subject data
   subject_data = link_soup.findAll('table', 'indivQuestions')[0:3] # ignore extra tables, e.g. HKN data
@@ -66,7 +65,6 @@ for l in links:
 print '...done!'
 
 # output to csv
-# TODO - encode/decode shenanigans
 field_names = library[0].keys()
 writer = csv.DictWriter(open('evals.csv', 'wb'), fieldnames=field_names)
 headers = dict((n, n) for n in field_names)
