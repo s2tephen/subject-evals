@@ -12,7 +12,7 @@ login = {
 ```
 ## Usage
 Run `python scrape.py` in console with any of the following flags:
-* `-t TERM` - narrows query by term, format is YYYY(FA|JA|SP|SU)
-* `-d DEPT` - narrows query by department, use course number or abbreviation
+* `-t TERM` - narrows query by term. The format for this is YYYY(FA|JA|SP|SU). Note that the year for Fall 2013-2014 would be 2014.
+* `-d DEPT` - narrows query by department. For this, simply use the course number or abbreviation (e.g. CMS, STS).
 
 If unspecified, the script will scrape all listings available on the site. These queries are additive and will stack into the same file, so you can run multiple queries for longitudinal data.
