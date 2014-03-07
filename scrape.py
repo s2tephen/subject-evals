@@ -37,7 +37,7 @@ br.select_form(nr=0)
 br.submit()
 
 # search all the things
-br.open('subjectEvaluationSearch.htm?termId=' + options.term + '&departmentId=' + options.dept + '&subjectCode=4.140&instructorName=&search=Search')
+br.open('subjectEvaluationSearch.htm?termId=' + options.term + '&departmentId=' + options.dept + '&subjectCode=&instructorName=&search=Search')
 index_soup = BeautifulSoup(br.response().read())
 links = index_soup.findAll('a')[3:]
 
@@ -66,13 +66,13 @@ for l in links:
 
     # scrape subject data
     subject_data = link_soup.findAll('table', 'indivQuestions')
-    if re.search('HKN Underground Guide', str(subject_data[-1].contents[1])):
-      subject_data = subject_data[0:-1] # exclude HKN table
-    for section in subject_data:
-      questions += [td.text for td in section.findAll('td', {'width': 300})]
-      avgs += [td.text for td in section.findAll('td', {'width': '35px'})]
-      responses += [td.text for td in section.findAll('td', {'width': 75})]
-      stddevs += [td.text for td in section.findAll('td', {'width': 50})]
+    for i in range(0, len(subject_data) - 1):
+      questions += [td.text for td in subject_data[i].findAll('td', {'width': 300})]
+      avgs += [td.text for td in subject_data[i].findAll('td', {'width': '35px'})]
+      responses += [td.text for td in subject_data[i].findAll('td', {'width': 75})]
+      stddevs += [td.text for td in subject_data[i].findAll('td', {'width': 50})]
+      if re.search('Overall rating of the subject', str(subject_data[i].contents[1])):
+        break # exclude any extra questions (e.g. HKN)
     data['questions'] = len(questions)
     max_questions = max(max_questions, data['questions'])
     for i in range(0, data['questions'] - 1):
