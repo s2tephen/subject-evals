@@ -10,7 +10,7 @@ parser.add_option('-t', '--term', dest='term', default='', help='format: YYYY(FA
 parser.add_option('-d', '--dept', dest='dept', default='', help='course # or abbreviation', metavar='DEPT')
 
 (options, args) = parser.parse_args()
-library, cached_keys = [], []
+library, cached_keys, temp_cache = [], [], []
 max_questions = 0
 if options.dept != '':
   for i in range(0, 4 - len(options.dept)):
@@ -52,7 +52,12 @@ print 'scraping...'
 for l in links:
   href = l.get('href')
   if href not in cached_keys:
-    cached_keys.append(href)
+    if not re.search('subjectEvaluationReport', href):
+      continue
+    if re.search('End of Term', l.parent.text):
+      is_end = True
+    else:
+      is_end = False
     br.open(href)
     link_soup = BeautifulSoup(br.response().read())
 
@@ -61,9 +66,13 @@ for l in links:
     questions, avgs, responses, stddevs = [], [], [], []
 
     # scrape summary data
-    data['subject'] = link_soup.findAll('h1')[2].contents[0::2][0:-1][cached_keys.count(href) - 1].strip().split('&nbsp;')[0]
+    num = l.text.split(' ')[0]
+    if num in temp_cache:
+      continue
+    data['subject'] = num
+    temp_cache.append(num)
     data['full_name'] = link_soup.findAll('h1')[2].contents[0].strip().split('&nbsp;')[1]
-    data['term'] = terms[options.term[0:2]] + ' ' + terms[options.term[2:7]] # TODO: rewrite this so it supports term-less queries
+    data['term'] = terms[options.term[4:7]] + ' ' + options.term[0:4] # TODO: rewrite this so it supports term-less queries
     print '  ' + data['subject'] + ', ' + data['term'],
     summary_data = link_soup.findAll('p', 'tooltip')
     data['eligible'] = str(summary_data[0].contents[1]).strip()
