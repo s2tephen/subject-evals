@@ -15,6 +15,12 @@ max_questions = 0
 if options.dept != '':
   for i in range(0, 4 - len(options.dept)):
     options.dept = '+' + options.dept
+terms = {
+  'FA': 'Fall',
+  'JA': 'IAP',
+  'SP': 'Spring',
+  'SU': 'Summer'
+}
 
 if os.path.isfile('evals.csv'):
   for r in csv.DictReader(open('evals.csv')):
@@ -57,7 +63,7 @@ for l in links:
     # scrape summary data
     data['subject'] = link_soup.findAll('h1')[2].contents[0::2][0:-1][cached_keys.count(href) - 1].strip().split('&nbsp;')[0]
     data['full_name'] = link_soup.findAll('h1')[2].contents[0].strip().split('&nbsp;')[1]
-    data['term'] = re.search('(Fall|IAP|Spring|Summer) [0-9]{4}', link_soup.findAll('h2')[0].contents[0]).group(0)
+    data['term'] = terms[options.term[0:2]] + ' ' + terms[options.term[2:7]] # TODO: rewrite this so it supports term-less queries
     print '  ' + data['subject'] + ', ' + data['term'],
     summary_data = link_soup.findAll('p', 'tooltip')
     data['eligible'] = str(summary_data[0].contents[1]).strip()
