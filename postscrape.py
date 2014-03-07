@@ -19,7 +19,7 @@ for s in subjects:
   if match:
     subunits = match.group(0).split(':')[1].strip().split('-')
     u = sum([int(str(su)) for su in subunits])
-    library.append({s: u})
+    library.append({'subject': s, 'units': u})
     print '...ok'
   else:
     print '...not found'
@@ -28,7 +28,7 @@ for s in subjects:
 print '...done!'
 
 field_names = ['subject', 'units']
-writer = csv.DictWriter(open('evals.csv', 'wb'), fieldnames=field_names)
+writer = csv.DictWriter(open('units.csv', 'wb'), fieldnames=field_names)
 headers = dict((n, n) for n in field_names)
 writer.writerow(headers)
 for data in library:
