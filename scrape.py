@@ -15,6 +15,9 @@ max_questions = 0
 if options.dept != '':
   for i in range(0, 4 - len(options.dept)):
     options.dept = '+' + options.dept
+if options.term != '':
+  if options.term[4:7] == 'FA':
+    options.term = str(int(options.term[0:4]) + 1) + 'FA'
 terms = {
   'FA': 'Fall',
   'JA': 'IAP',
@@ -66,13 +69,21 @@ for l in links:
     questions, avgs, responses, stddevs = [], [], [], []
 
     # scrape summary data
+    # TODO: rewrite this so it supports term-less queries
     num = l.text.split(' ')[0]
     if num in temp_cache:
       continue
     data['subject'] = num
     temp_cache.append(num)
-    data['full_name'] = link_soup.findAll('h1')[2].contents[0].strip().split('&nbsp;')[1]
-    data['term'] = terms[options.term[4:7]] + ' ' + options.term[0:4] # TODO: rewrite this so it supports term-less queries
+    if num == '21M.230':
+      data['full_name'] = 'Vivaldi, Bach, and Handel'
+    else:
+      data['full_name'] = link_soup.findAll('h1')[2].contents[0].strip().split('&nbsp;')[1]
+    semester = terms[options.term[4:7]]
+    year = options.term[0:4]
+    if semester == 'Fall':
+      year = str(int(year) - 1)
+    data['term'] = semester + ' ' + year
     print '  ' + data['subject'] + ', ' + data['term'],
     summary_data = link_soup.findAll('p', 'tooltip')
     data['eligible'] = str(summary_data[0].contents[1]).strip()
@@ -81,7 +92,7 @@ for l in links:
 
     # scrape subject data
     subject_data = link_soup.findAll('table', 'indivQuestions')
-    for i in range(0, len(subject_data) - 1):
+    for i in range(0, len(subject_data)):
       questions += [td.text for td in subject_data[i].findAll('td', {'width': 300})]
       avgs += [td.text for td in subject_data[i].findAll('td', {'width': '35px'})]
       responses += [td.text for td in subject_data[i].findAll('td', {'width': 75})]
@@ -90,7 +101,7 @@ for l in links:
         break # exclude any extra questions (e.g. HKN)
     data['questions'] = len(questions)
     max_questions = max(max_questions, data['questions'])
-    for i in range(0, data['questions'] - 1):
+    for i in range(0, data['questions']):
       data['q' + str(i + 1)] = questions[i]
       data['avg' + str(i + 1)] = avgs[i]
       data['n' + str(i + 1)] = responses[i]
@@ -103,7 +114,7 @@ print '...done!'
 
 # output to csv
 field_names = ['subject', 'full_name', 'term', 'eligible', 'respondents', 'response_rate', 'questions', 'url']
-for i in range(1, max_questions):
+for i in range(1, max_questions + 1):
   field_names.append('q' + str(i))
   field_names.append('avg' + str(i))
   field_names.append('n' + str(i))
