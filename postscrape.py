@@ -3,6 +3,7 @@ import mechanize
 from BeautifulSoup import BeautifulSoup
 
 library = []
+<<<<<<< HEAD
 subjects = []
 if os.path.isfile('evals.csv'):
   for r in csv.DictReader(open('evals.csv')):
