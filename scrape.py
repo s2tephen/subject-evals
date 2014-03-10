@@ -75,10 +75,8 @@ for l in links:
       continue
     data['subject'] = num
     temp_cache.append(num)
-    if num == '21M.230':
-      data['full_name'] = 'Vivaldi, Bach, and Handel'
-    else:
-      data['full_name'] = link_soup.findAll('h1')[2].contents[0].strip().split('&nbsp;')[1]
+    raw_name = link_soup.findAll('h1')[2].contents[0].strip().split('&nbsp;')[1]
+    data['full_name'] = unidecode(raw_name.decode('utf8'))
     semester = terms[options.term[4:7]]
     year = options.term[0:4]
     if semester == 'Fall':
